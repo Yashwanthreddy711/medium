@@ -2,7 +2,10 @@ import { Hono } from "hono";
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { decode, sign, verify } from 'hono/jwt'
-import { signUpInput } from "../zod";
+import { signinInput, signUpInput } from "@yashwanth711/medium-zod-types";
+
+
+
 
 
 export const userRouter=new Hono<{
@@ -17,9 +20,9 @@ userRouter.post('/signup',async(c)=>{
       datasourceUrl:c.env.DATABASE_URL,
     }).$extends(withAccelerate()) 
     const body= await c.req.json();
-    const {success}=signUpInput.safeParse(body);
+    const {success}=signUpInput.safeParse(body)
     if(!success){
-       return c.json({"error":"Invalid Inputs"},403);
+      return c.json({error:"Invalid Inputs"},403);
     }
   
     try{
@@ -52,7 +55,11 @@ userRouter.post('/signup',async(c)=>{
       datasourceUrl:c.env.DATABASE_URL,
     }).$extends(withAccelerate()) 
     const body= await c.req.json();
-  
+    const {success}=signinInput.safeParse(body)
+    if(!success){
+      return c.json({error:"Invalid Inputs"},403);
+    }
+    
     try{
       const user=await prisma.user.findFirst({
         where: {
